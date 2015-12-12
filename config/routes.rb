@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   root 'meetups#new'
 
+  resources :meetups, only: %w(new create)
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
