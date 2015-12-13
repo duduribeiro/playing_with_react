@@ -1,9 +1,4 @@
 DOM = React.DOM
-monthName = (monthNumberStartingFromZero) ->
-  [
-    "January", "February", "March", "April", "May", "June", "July",
-    "August", "September", "October", "November", "December"
-  ][monthNumberStartingFromZero]
 
 dayName = (date) ->
   dayNameStartingWithSundayZero = date.getDay()
@@ -61,7 +56,7 @@ window.DateWithLabel = React.createClass
           className: "form-control"
           onChange: @onMonthChange
           value: @props.date.getMonth()
-          DOM.option(value: month, key: month, "#{month+1}-#{monthName(month)}") for month in [0..11]
+          DOM.option(value: month, key: month, "#{month+1}-#{dateUtils.monthName(month)}") for month in [0..11]
 
       DOM.div
         className: "col-lg-2"
