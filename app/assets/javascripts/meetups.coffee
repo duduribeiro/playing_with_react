@@ -6,9 +6,14 @@ window.CreateNewMeetupForm = React.createClass
     {
       meetup: {
         title: "",
-        description: ""
+        description: "",
+        date: new Date()
       }
     }
+
+  dateChanged: (newDate) ->
+    @state.meetup.date = newDate
+    @forceUpdate()
 
   titleChanged: (event) ->
     console.log "titleChanged triggered"
@@ -21,13 +26,18 @@ window.CreateNewMeetupForm = React.createClass
 
   formSubmitted: (event) ->
     event.preventDefault()
+    meetup = @state.meetup
     $.ajax
       url: "/meetups.json"
       type: "POST"
       dataType: "JSON"
       contentType: "application/json"
       processData: false
-      data: JSON.stringify({meetup: @state.meetup})
+      data: JSON.stringify({meetup: {
+        title: meetup.title,
+        description: meetup.description,
+        date: "#{meetup.date.getFullYear()}-#{meetup.date.getMonth()+1}-#{meetup.date.getDate()}"
+      }})
 
   render: ->
     DOM.form
@@ -50,6 +60,10 @@ window.CreateNewMeetupForm = React.createClass
           placeholder: "Meetup description"
           labelText: "Description"
           elementType: "textarea"
+
+        dateWithLabel
+          onChange: @dateChanged
+          date: @state.meetup.date
 
         DOM.div
           className: "form-group"
