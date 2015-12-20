@@ -7,7 +7,11 @@ window.CreateNewMeetupForm = React.createClass
       meetup: {
         title: "",
         description: "",
-        date: new Date()
+        date: new Date(),
+        guests: [""]
+      },
+      warnings: {
+        title: null
       }
     }
 
@@ -16,8 +20,8 @@ window.CreateNewMeetupForm = React.createClass
     @forceUpdate()
 
   titleChanged: (event) ->
-    console.log "titleChanged triggered"
     @state.meetup.title = event.target.value
+    @validateTitle()
     @forceUpdate()
 
   descriptionChanged: (event) ->
@@ -28,15 +32,41 @@ window.CreateNewMeetupForm = React.createClass
     @state.meetup.seoText = seoText
     @forceUpdate()
 
+  guestEmailChanged: (number, event) ->
+    guests = @state.meetup.guests
+    guests[number] = event.target.value
+    
+    lastEmail        = guests[guests.length-1]
+    #penultimateEmail = guests[guests.length-2]
+
+    if(lastEmail != "")
+      guests.push("")
+    #if(guests.length >= 2 && lastEmail == "" && penultimateEmail == "")
+    #  guests.pop()
+    if(number < guests.length-1 && event.target.value == "")
+      guests.splice(number, 1)
+
+    @forceUpdate()
+    
   computeDefaultSeoText: ->
     words = @state.meetup.title.toLowerCase().split(/\s+/)
     words.push(dateUtils.monthName(@state.meetup.date.getMonth()))
     words.push(@state.meetup.date.getFullYear().toString())
     words.filter( (string) -> string.trim().length > 0).join("-").toLowerCase()
 
+  validateTitle: () ->
+    @state.warnings.title = if /\S/.test(@state.meetup.title) then null else "Cannot be blank"
+
   formSubmitted: (event) ->
     event.preventDefault()
     meetup = @state.meetup
+
+    @validateTitle()
+    @forceUpdate()
+
+    for own key of meetup
+      return if @state.warnings[key]
+
     $.ajax
       url: "/meetups.json"
       type: "POST"
@@ -47,7 +77,8 @@ window.CreateNewMeetupForm = React.createClass
         title: meetup.title,
         description: meetup.description,
         date: "#{meetup.date.getFullYear()}-#{meetup.date.getMonth()+1}-#{meetup.date.getDate()}",
-        seo: @state.meetup.seoText || @computeDefaultSeoText()
+        seo: @state.meetup.seoText || @computeDefaultSeoText(),
+        guests: @state.meetup.guests
       }})
 
   render: ->
@@ -63,6 +94,7 @@ window.CreateNewMeetupForm = React.createClass
           onChange: @titleChanged
           placeholder: "Meetup title"
           labelText: "Title"
+          warning: @state.warnings.title
 
         formInputWithLabel
           id: "description"
@@ -82,6 +114,20 @@ window.CreateNewMeetupForm = React.createClass
           onChange: @seoChanged
           plaaceholder: "SEO text"
           labelText: "SEO"
+
+      DOM.fieldset null,
+        DOM.legend null, "Guests"
+        for guest, n in @state.meetup.guests
+          ((i) =>
+            formInputWithLabel
+              id: "email-#{i}"
+              key: "guest-#{i}"
+              value: guest
+              onChange: (event) =>
+                @guestEmailChanged(i, event)
+              placeholder: "Email address of an invitee"
+              labelText: "Email"
+        )(n)
 
         DOM.div
           className: "form-group"
