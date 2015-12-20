@@ -73,4 +73,3 @@ window.DateWithLabel = React.createClass
             DOM.option(value: day, key: day, "#{day}-#{dayName(date)}")
 
 window.dateWithLabel = React.createFactory(DateWithLabel)
-

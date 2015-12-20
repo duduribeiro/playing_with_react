@@ -117,17 +117,18 @@ window.CreateNewMeetupForm = React.createClass
 
       DOM.fieldset null,
         DOM.legend null, "Guests"
-        for guest, n in @state.meetup.guests
-          ((i) =>
-            formInputWithLabel
-              id: "email-#{i}"
-              key: "guest-#{i}"
-              value: guest
-              onChange: (event) =>
-                @guestEmailChanged(i, event)
-              placeholder: "Email address of an invitee"
-              labelText: "Email"
-        )(n)
+        separator null,
+          for guest, n in @state.meetup.guests
+            ((i) =>
+              formInputWithLabel
+                id: "email-#{i}"
+                key: "guest-#{i}"
+                value: guest
+                onChange: (event) =>
+                  @guestEmailChanged(i, event)
+                placeholder: "Email address of an invitee"
+                labelText: "Email"
+          )(n)
 
         DOM.div
           className: "form-group"
